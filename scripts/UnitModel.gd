@@ -37,6 +37,7 @@ var _dead_t: float = 0.0
 var _flash_t: float = 0.0
 var _grow: float = 1.0
 var _grow_target: float = 1.0
+var _animation_acc: float = 0.0
 
 
 func build(c: Dictionary, team_col: Color) -> void:
@@ -127,6 +128,12 @@ func _limb(pivot_pos: Vector3, radius: float, length: float, color: Color) -> No
     mi.position = Vector3(0.0, -length * 0.5, 0.0)
     pv.add_child(mi)
     return pv
+
+func enable_occlusion_outline() -> void:
+    var outline := ShaderMaterial.new()
+    outline.shader = preload("res://Shaders/hero_occlusion.gdshader")
+    for mesh in find_children("*", "MeshInstance3D", true, false):
+        mesh.material_overlay = outline
 
 
 func _box(parent: Node3D, size: Vector3, pos: Vector3, color: Color, glow: float = 0.0) -> MeshInstance3D:
@@ -272,6 +279,12 @@ func _end_grow() -> void:
 func _process(delta: float) -> void:
     if _root == null:
         return
+    _animation_acc += delta
+    var interval: float = 0.05 if Global.quality == 0 else (1.0 / 30.0 if Global.quality == 1 else 0.0)
+    if _animation_acc < interval:
+        return
+    delta = _animation_acc
+    _animation_acc = 0.0
     _t += delta
     if dead:
         _dead_t += delta
@@ -280,7 +293,9 @@ func _process(delta: float) -> void:
         _root.position.y = lerpf(0.0, 0.25, kd)
         return
     _grow = lerpf(_grow, _grow_target, clampf(delta * 5.0, 0.0, 1.0))
-    scale = Vector3.ONE * base_scale * _grow
+    var desired_scale := Vector3.ONE * base_scale * _grow
+    if scale != desired_scale:
+        scale = desired_scale
     if _flash_t > 0.0:
         _flash_t -= delta
     var f := maxf(_flash_t, 0.0) * 1.4

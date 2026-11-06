@@ -1,5 +1,5 @@
 extends Control
-## AuthGate.gd — обязательный экран входа/регистрации перед главным меню.
+## AuthGate.gd — гостевой вход или локальный профиль перед главным меню.
 
 const GOLD: Color = Color(0.8, 0.3, 0.24)
 const MUTED: Color = Color(0.68, 0.72, 0.84)
@@ -19,6 +19,16 @@ var _busy: bool = false
 
 func _ready() -> void:
     get_tree().paused = false
+    if OS.get_environment("THRONE_WARS_TEST") == "1" and ("--verify-runtime" in OS.get_cmdline_user_args() or "--benchmark-runtime" in OS.get_cmdline_user_args()):
+        var data_dir := OS.get_user_data_dir().replace("\\", "/")
+        if not data_dir.contains("/thronewars-runtime-"):
+            printerr("Runtime verification requires tools/test_windows.py and isolated data.")
+            get_tree().quit(2)
+            return
+        _build_screen()
+        var verification: Node = preload("res://scripts/RuntimeBenchmark.gd").new() if "--benchmark-runtime" in OS.get_cmdline_user_args() else preload("res://scripts/RuntimeVerification.gd").new()
+        get_tree().root.call_deferred("add_child", verification)
+        return
     set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
     if not ProfileService.auth_result.is_connected(_on_auth_result):
         ProfileService.auth_result.connect(_on_auth_result)

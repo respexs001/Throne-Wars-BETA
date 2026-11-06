@@ -146,6 +146,7 @@ func _after_ready() -> void:
 	add_child(lbl)
 	if is_player:
 		_ring = MeshInstance3D.new()
+		model.enable_occlusion_outline()
 		var tm := TorusMesh.new()
 		tm.inner_radius = 1.5 * Global.UNIT_SCALE
 		tm.outer_radius = 1.75 * Global.UNIT_SCALE
@@ -574,6 +575,7 @@ func use_item(slot: int, pos: Vector3) -> bool:
 		recalc_stats()
 	else:
 		item_cd[slot] = act["cd"]
+	SignalBus.item_used.emit(self, id)
 	return true
 
 

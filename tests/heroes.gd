@@ -64,6 +64,8 @@ func run() -> void:
                         for effect in ab["fx"]: assert(enemy.has_status(effect))
                     if kind == "stun_point": assert(enemy.has_status("stun"))
                     if kind == "nova" and ab.has("stun"): assert(enemy.has_status("stun"))
+                    if kind == "zone" and ab.has("stun"): assert(enemy.has_status("stun"))
+                    if kind in ["zone", "nova"] and ab.has("slow"): assert(enemy.has_status("slow"))
             print("PASS: ", id, " / ", ab["name"], " / ", kind)
             arena.free()
             await process_frame

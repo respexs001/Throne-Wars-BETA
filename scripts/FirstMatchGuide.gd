@@ -6,7 +6,8 @@ var _start: Vector3
 var _label: Label
 var _elapsed: float = 0.0
 var _baseline_damage: float = 0.0
-var _last_inventory: Array = []
+var _movement_requested: bool = false
+var _item_used: bool = false
 const STEPS: Array[String] = [
     "1/5 · Передвижение: ПКМ по земле. Пройдите несколько шагов.",
     "2/5 · Атака: ПКМ по вражескому крипу. Дождитесь попадания.",
@@ -16,11 +17,12 @@ const STEPS: Array[String] = [
 ]
 func setup(unit: BaseHero) -> void:
     hero = unit
+    SignalBus.player_movement_ordered.connect(_on_movement_order)
+    SignalBus.item_used.connect(_on_item_used)
     _start = hero.global_position
     _baseline_damage = hero.damage_dealt
-    _last_inventory = hero.inventory.duplicate()
     var panel := PanelContainer.new()
-    panel.position = Vector2(16, 100)
+    panel.position = Vector2(16, 140)
     panel.custom_minimum_size = Vector2(350, 0)
     var style := StyleBoxFlat.new()
     style.bg_color = Color(0.035, 0.055, 0.07, 0.94)
@@ -47,16 +49,12 @@ func _process(delta: float) -> void:
     _elapsed += delta
     var done: bool = false
     match step:
-        0: done = Global.flat_dist(hero.global_position, _start) > 8.0
+        0: done = _movement_requested and Global.flat_dist(hero.global_position, _start) > 8.0
         1: done = hero.damage_dealt > _baseline_damage
         2:
             for cd in hero.ab_cd:
                 if float(cd) > 0.0: done = true
-        3:
-            for cd in hero.item_cd:
-                if float(cd) > 0.0: done = true
-            if hero.inventory.count("health_potion") < _last_inventory.count("health_potion"): done = true
-            _last_inventory = hero.inventory.duplicate()
+        3: done = _item_used
         4: done = hero.building_damage > 0.0
     if done:
         step += 1
@@ -70,3 +68,9 @@ func _finish() -> void:
     Global.tutorial_seen = true
     Global.save_settings()
     queue_free()
+func _on_movement_order(unit: Node) -> void:
+    if unit == hero and not _movement_requested:
+        _movement_requested = true
+        _start = hero.global_position
+func _on_item_used(unit: Node, _id: String) -> void:
+    if unit == hero and step == 3: _item_used = true

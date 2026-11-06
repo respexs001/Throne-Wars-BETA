@@ -13,6 +13,7 @@ var goal_pos: Vector3 = Vector3.ZERO
 var wave: int = 0
 var ranged_creep: bool = false
 var siege: bool = false
+var guardian_empowered: bool = false
 var neutral: bool = false
 var big: bool = false
 var guardian: bool = false
@@ -99,6 +100,9 @@ func _configure() -> void:
         gold_bounty = 62
         exp_bounty = 80
         model_cfg = {"scale": 1.15, "build": "bulky", "body": col.darkened(0.45), "accent": Color(0.9, 0.7, 0.3), "skin": Color(0.7, 0.6, 0.5), "weapon": "hammer", "hat": "helmet"}
+        if guardian_empowered:
+            unit_name = "Осадный крип Стража"
+            model_cfg["accent"] = Color(0.2, 0.9, 0.8)
 
 
 # ---------- выбор цели ----------

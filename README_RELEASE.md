@@ -10,4 +10,4 @@
 
 Ограничения перечислены в KNOWN_ISSUES.md. Пакет не подписан цифровым сертификатом; системные требования ещё не установлены. EXE использует стандартные файловые метаданные шаблона Godot; версия игры видна в меню и manifest.json.
 
-Сообщения об ошибках: https://github.com/zenagolev0-hub/Throne-Wars-BETA/issues . Укажите версию, героя, режим и шаги; не прикладывайте accounts.cfg и пароли. Лицензии движка: GODOT_LICENSES.txt; права проекта: RIGHTS.md.
+Сообщения об ошибках: https://github.com/respexs001/Throne-Wars-BETA/issues . Укажите версию, героя, режим и шаги; не прикладывайте accounts.cfg и пароли. Лицензии движка: GODOT_LICENSES.txt; права проекта: RIGHTS.md.

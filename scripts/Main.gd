@@ -199,14 +199,15 @@ func _spawn_wave() -> void:
 			if siege_wave:
 				kinds[0] = "siege"
 			if Global.siege_waves[t] > 0:
-				kinds.append("siege")
+				kinds.append("guardian_siege")
 			for i in kinds.size():
 				var c := Creep.new()
 				c.team = t
 				c.lane = lane
 				c.wave = _wave
 				c.ranged_creep = kinds[i] == "ranged"
-				c.siege = kinds[i] == "siege"
+				c.siege = kinds[i] in ["siege", "guardian_siege"]
+				c.guardian_empowered = kinds[i] == "guardian_siege"
 				c.path = path
 				c.goal_pos = Global.throne_pos(1 - t)
 				var sp := p0 - dir * (float(i) * 4.6) + side * ((float(i % 2) - 0.5) * 4.0)

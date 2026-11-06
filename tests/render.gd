@@ -25,6 +25,11 @@ func run() -> void:
     await capture("menu-1280")
     root.size = Vector2i(1920, 1080)
     await capture("menu-1920")
+    root.size = Vector2i(1280, 720)
+    for id in MatchBalance.PRIMARY_HEROES:
+        menu._pick(id)
+        await capture("hero-" + id)
+    menu._pick("smugr")
     menu.queue_free()
     await process_frame
     root.size = Vector2i(1280, 720)
@@ -42,5 +47,12 @@ func run() -> void:
     await capture("hud-1280")
     root.size = Vector2i(1920, 1080)
     await capture("hud-1920")
+    root.size = Vector2i(1280, 720)
+    game.player.level = 25
+    game.player.skill_points = 25
+    game.player.recalc_stats()
+    var neutral_ids: Array = global.NEUTRAL_ITEMS.keys()
+    game.player.neutral_item = neutral_ids[0]
+    await capture("hud-late-1280")
     print("PASS: rendered menu and HUD at 1280x720 and 1920x1080")
     quit()

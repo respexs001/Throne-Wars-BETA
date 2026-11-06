@@ -9,11 +9,21 @@ var task_position: Vector3 = Vector3.ZERO
 var task_until: float = 0.0
 var _objective: Unit
 var _last_objective: float = -100.0
+var _task_changed_at: float = -100.0
+var _fountain_buy_at: float = 0.0
 
 func _ready() -> void:
     difficulty = clampi(difficulty, 0, 2)
     super._ready()
     add_to_group("strategic_bots")
+
+func _physics_process(delta: float) -> void:
+    if is_instance_valid(hero) and hero.alive and not Global.is_over and _now() >= _fountain_buy_at and Global.flat_dist(hero.global_position, Global.fountain_pos(hero.team)) < 20.0:
+        _fountain_buy_at = _now() + 1.0
+        var before := hero.gold
+        _buy_items()
+        if hero.gold != before: _last_shop = _now()
+    super._physics_process(delta)
 
 func _lane() -> void:
     if _b_survive():
@@ -29,6 +39,8 @@ func _lane() -> void:
         var anchor := Global.tower_def_pos(hero.team, lane, 0)
         hero.order_move(anchor)
         Abilities.ai_escape(hero, anchor)
+        return
+    if _b_shop():
         return
     if _execute_objective():
         return
@@ -62,17 +74,18 @@ func _plan_objective() -> void:
         if b == null or not b.alive or b.team != hero.team:
             continue
         var pressure: float = 0.0
+        var enemy_heroes: int = 0
         for e in Global.enemies_in_range(hero.team, b.global_position, 65.0):
             if e is Building or (e is Creep and (e as Creep).neutral):
                 continue
             pressure += 3.0 if e is BaseHero else 0.55
+            if e is BaseHero: enemy_heroes += 1
         if pressure <= 0.0:
             continue
-        var defenders: int = 0
-        for a in Global.heroes_of(hero.team):
-            if a != hero and a.alive and Global.flat_dist(a.global_position, b.global_position) < 90.0:
-                defenders += 1
-        defenders = maxi(defenders, TeamStrategy.committed(get_tree(), hero.team, b.global_position, self))
+        # An ordinary wave at a healthy outer tower is not an emergency.
+        if enemy_heroes == 0 and not b.is_throne and b.hp > b.max_hp * 0.65 and pressure < 4.0:
+            continue
+        var defenders := TeamStrategy.covering(get_tree(), hero.team, b.global_position, self)
         var distance := Global.flat_dist(hero.global_position, b.global_position)
         var score: float = pressure * 12.0 + (1.0 - b.hp / b.max_hp) * 25.0
         score += 95.0 if b.is_throne else float(b.tier) * 9.0
@@ -81,6 +94,10 @@ func _plan_objective() -> void:
             best_score = score
             best = b
     if best != null and best_score > 18.0 and _ratio > 0.45:
+        var changed := task_kind != "defend" or Global.flat_dist(task_position, best.global_position) > 70.0
+        if changed and task_kind == "defend" and task_until > _now() and _now() < _task_changed_at + 8.0 and not best.is_throne:
+            return
+        if changed: _task_changed_at = _now()
         _def_pos = best.global_position
         task_kind = "defend"
         task_position = _def_pos
@@ -231,6 +248,8 @@ func _route_to(goal: Vector3) -> bool:
         return true
     if _route_path.is_empty() or Global.flat_dist(goal, _route_goal) > 3.0 or _now() >= _route_expires:
         _route_path = Navigation.route(hero.global_position, goal, hero.body_radius, hero.get_parent())
+        if _route_path.size() > 1 and Global.flat_dist(hero.global_position, _route_path[0]) < Navigation.CELL * 0.75:
+            _route_path.pop_front()
         _route_goal = goal
         _route_expires = _now() + 4.0
     while not _route_path.is_empty() and Global.flat_dist(hero.global_position, _route_path[0]) < 1.5:
@@ -280,7 +299,7 @@ func _try_guardian() -> bool:
         return false
     var allies: int = 0
     for ally in Global.heroes_of(hero.team):
-        if ally != hero and ally.alive and ally.hp > ally.max_hp * 0.6 and Global.flat_dist(ally.global_position, hero.global_position) < 110.0:
+        if ally != hero and ally.alive and ally.hp > ally.max_hp * 0.6 and Global.flat_dist(ally.global_position, hero.global_position) < 180.0:
             allies += 1
     if allies == 0: return false
     for node in Global.units():
@@ -290,7 +309,7 @@ func _try_guardian() -> bool:
         _objective = guardian
         task_kind = "guardian"
         task_position = guardian.global_position
-        task_until = _now() + 45.0
+        task_until = _now() + clampf(Global.flat_dist(hero.global_position, task_position) / maxf(hero.eff_move_speed(), 1.0) + 35.0, 45.0, 90.0)
         _last_objective = _now()
         strategy = "Командная цель: Древний Страж"
         return true
@@ -316,6 +335,19 @@ func _execute_objective() -> bool:
     if _foe != null and _fd < 40.0:
         if _b_kill() or _b_harass(): return true
     if _b_lasthit(): return true
+    var wave_target: Creep = null
+    var wave_distance: float = hero.attack_range + hero.body_radius + 12.0
+    for node in Global.units_near(hero.global_position, wave_distance):
+        var creep := node as Creep
+        if creep == null or not creep.alive or creep.neutral or creep.team == hero.team: continue
+        var d := Global.flat_dist(hero.global_position, creep.global_position)
+        if d < wave_distance and (not _danger(creep.global_position) or _creeps_near(creep.global_position, 35.0, false) >= 2):
+            wave_target = creep
+            wave_distance = d
+    if wave_target != null:
+        strategy = "Расчистка волны для осады"
+        hero.order_attack(wave_target)
+        return true
     var target: Building = null
     var best_distance: float = INF
     for node in Global.units():
@@ -332,13 +364,15 @@ func _execute_objective() -> bool:
         if best_distance < hero.attack_range + hero.body_radius + target.body_radius + 1.0:
             hero.order_attack(target)
         else:
-            hero.order_amove(target.global_position)
+            var direction := (hero.global_position - target.global_position).normalized()
+            var reach := hero.attack_range + hero.body_radius + target.body_radius - 0.5
+            _route_to(target.global_position + direction * reach)
         return true
     if _front != null:
         strategy = "Сопровождение волны"
         var wp: Vector3 = _front.path[_front.path_idx] if _front.path_idx < _front.path.size() else _front.goal_pos
         var direction: Vector3 = (wp - _front.global_position).normalized()
         var follow := _front.global_position - direction * (3.0 if not hero.is_ranged else maxf(hero.attack_range * 0.6, 8.0))
-        hero.order_amove(follow)
+        _route_to(follow)
         return true
     return false

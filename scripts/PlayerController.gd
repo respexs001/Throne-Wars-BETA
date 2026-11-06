@@ -237,6 +237,7 @@ func _process(_delta: float) -> void:
 		cam_r = cam_r.normalized()
 		var dir := cam_r * joy.vec.x - cam_f * joy.vec.y
 		for u in _squad():
+			if not _joy_moving: SignalBus.player_movement_ordered.emit(u)
 			u.order_move(u.global_position + dir * 30.0)
 		_joy_moving = true
 	elif _joy_moving:
@@ -296,6 +297,7 @@ func _squad() -> Array:
 func _o_move(pos: Vector3, queued: bool) -> void:
 	var sq := _squad()
 	for i in sq.size():
+		SignalBus.player_movement_ordered.emit(sq[i])
 		var p := pos
 		if i > 0:
 			var a := TAU * float(i) / float(sq.size() - 1)
@@ -310,6 +312,7 @@ func _o_attack(t: Unit) -> void:
 
 func _o_amove(pos: Vector3) -> void:
 	for u in _squad():
+		SignalBus.player_movement_ordered.emit(u)
 		u.order_amove(pos)
 
 

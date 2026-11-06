@@ -56,6 +56,7 @@ var _moved: bool = false
 var _had_aegis: bool = false
 var _stuck: float = 0.0
 var _sep_cd: float = 0.0
+var _shown_hp_ratio: float = -1.0
 
 
 func _ready() -> void:
@@ -237,12 +238,15 @@ func take_damage(amount: float, attacker: Unit = null, dtype: String = "phys", i
 			status.erase("shield")
 	if amount <= 0.0:
 		return
+	var actual_damage := minf(amount, maxf(hp, 0.0))
 	hp -= amount
 	if attacker is BaseHero:
 		var hero := attacker as BaseHero
-		hero.damage_dealt += amount
+		if hero.is_illusion and is_instance_valid(hero.illusion_owner):
+			hero = hero.illusion_owner
+		hero.damage_dealt += actual_damage
 		if self is Building:
-			hero.building_damage += amount
+			hero.building_damage += actual_damage
 			(self as Building).damage_contributors[hero.get_instance_id()] = true
 	if not silent:
 		SignalBus.unit_damaged.emit(self, attacker, amount)
@@ -471,7 +475,10 @@ func _set_bars_visible(v: bool) -> void:
 
 func _update_bar() -> void:
 	if _bar_fg != null:
-		_bar_fg.scale.x = clampf(hp / max_hp, 0.001, 1.0)
+		var ratio := clampf(hp / max_hp, 0.001, 1.0)
+		if ratio != _shown_hp_ratio:
+			_shown_hp_ratio = ratio
+			_bar_fg.scale.x = ratio
 
 
 # Мягкая коллизия юнит-юнит: юниты не слипаются (раз в 0.1 с, поиск по сетке).
@@ -498,4 +505,7 @@ func _separate_units(delta: float) -> void:
 func _snap_to_ground() -> void:
 	if self is Building:
 		return
-	global_position.y = Global.height_at(global_position.x, global_position.z)
+	var grounded := global_position
+	grounded.y = Global.height_at(grounded.x, grounded.z)
+	if grounded != global_position:
+		global_position = grounded

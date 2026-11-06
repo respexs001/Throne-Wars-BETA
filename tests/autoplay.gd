@@ -97,6 +97,10 @@ func restart() -> void:
 func finish(won: bool) -> void:
     done = true
     var report := {"seed": random_seed, "mode": mode, "seconds": settings.elapsed, "total_seconds": total, "finished": won, "completed_matches": completed, "kills": settings.stats["kills"], "towers": settings.stats["towers"], "first_damage": first_damage, "first_purchase": first_purchase, "first_tower": first_tower, "peak_units": peak_units, "stress_illusions": copies}
+    var hero_reports: Array = []
+    for hero in settings.heroes_of(0) + settings.heroes_of(1):
+        hero_reports.append({"hero": hero.hero_id, "team": hero.team, "level": hero.level, "last_hits": hero.last_hits, "building_damage": hero.building_damage, "objectives": hero.objectives, "gold": hero.gold, "inventory": hero.inventory})
+    report["final_match_heroes"] = hero_reports
     var file := FileAccess.open(output, FileAccess.WRITE)
     if file == null:
         push_error("Cannot write autoplay report: " + output)

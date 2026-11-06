@@ -13,6 +13,7 @@ def main():
   if not (a.templates/name).is_file():ap.error('Missing matching template: '+name)
  if (a.templates/'version.txt').read_text().strip()!='4.7.2.stable':ap.error('Templates must be 4.7.2.stable')
  a.output.mkdir(parents=True,exist_ok=True)
+ (a.output/'.gdignore').touch(exist_ok=True)
  package=a.output/f'ThroneWars-{VERSION}-candidate';package.mkdir(exist_ok=True)
  with tempfile.TemporaryDirectory(prefix='thronewars-export-') as tmp:
   temp=Path(tmp);stage=temp/'source';stage.mkdir()
@@ -20,6 +21,10 @@ def main():
    if (ROOT/directory).exists():shutil.copytree(ROOT/directory,stage/directory)
   for name in ['project.godot','export_presets.cfg','icon.svg','icon.svg.import']:
    if (ROOT/name).exists():shutil.copy2(ROOT/name,stage/name)
+  source_hash=hashlib.sha256()
+  for source in sorted(stage.rglob('*')):
+   if source.is_file():
+    source_hash.update(source.relative_to(stage).as_posix().encode()+b'\0');source_hash.update(source.read_bytes().replace(b'\r\n',b'\n'))
   preset=(stage/'export_presets.cfg').read_text(encoding='utf-8')
   preset=preset.replace('custom_template/debug=""','custom_template/debug="'+(a.templates/'windows_debug_x86_64.exe').resolve().as_posix()+'"',1)
   preset=preset.replace('custom_template/release=""','custom_template/release="'+(a.templates/'windows_release_x86_64.exe').resolve().as_posix()+'"',1)
@@ -47,7 +52,7 @@ func _initialize() -> void:
 ''',encoding='utf-8')
   run(common+['--script','res://licenses.gd','--log-file',str(a.output/'licenses.log'),'--',str((package/'GODOT_LICENSES.txt').resolve())],env,a.output/'licenses.log')
  for src,dst in [('README_RELEASE.md','README.md'),('RIGHTS.md','RIGHTS.md'),('THIRD_PARTY_NOTICES.md','THIRD_PARTY_NOTICES.md'),('docs/KNOWN_ISSUES.md','KNOWN_ISSUES.md')]:shutil.copy2(ROOT/src,package/dst)
- manifest={'version':VERSION,'status':'candidate-not-approved-for-public-binary-release','godot':'4.7.2.stable','platform':'windows-x86_64','sha256_exe':hashlib.file_digest((package/'ThroneWars.exe').open('rb'),'sha256').hexdigest(),'user_data_included':False,'template_sha256':hashlib.file_digest((a.templates/'windows_release_x86_64.exe').open('rb'),'sha256').hexdigest()}
+ manifest={'version':VERSION,'status':'candidate-not-approved-for-public-binary-release','godot':'4.7.2.stable','platform':'windows-x86_64','source_sha256':source_hash.hexdigest(),'sha256_exe':hashlib.file_digest((package/'ThroneWars.exe').open('rb'),'sha256').hexdigest(),'user_data_included':False,'template_sha256':hashlib.file_digest((a.templates/'windows_release_x86_64.exe').open('rb'),'sha256').hexdigest()}
  (package/'manifest.json').write_text(json.dumps(manifest,indent=2),encoding='utf-8')
  archive=a.output/(package.name+'.zip')
  with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED,compresslevel=6) as z:

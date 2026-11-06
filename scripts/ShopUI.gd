@@ -406,6 +406,9 @@ func _cycle_sort() -> void:
 
 
 func _auto_buy() -> void:
+    if is_instance_valid(hero.courier) and not hero.courier.stash.is_empty():
+        _status.text = "Сначала получите покупки у курьера."
+        return
     for id in BuildGuide.items(hero.hero_id, hero.build_choice):
         if id == "boots" and hero.inventory.has("battle_boots"):
             continue

@@ -36,6 +36,8 @@ var _msgs: Array = []
 var _lbl_target: Label
 var _bar_target: ProgressBar
 var _lbl_bot: Label
+var _lbl_objective: Label
+var _objective_at: float = -1.0
 var _banner: Label
 var _banner_tw: Tween
 var _dead_panel: PanelContainer
@@ -269,10 +271,14 @@ func _build_bottom(root: Control) -> void:
 	stats.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	hb.add_child(stats)
 	_lbl_name = Label.new()
+	_lbl_name.clip_text = true
+	_lbl_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_lbl_name.add_theme_font_size_override("font_size", 15)
 	_lbl_name.add_theme_color_override("font_color", Color(1.0, 0.92, 0.65))
 	stats.add_child(_lbl_name)
 	_lbl_gold = Label.new()
+	_lbl_gold.clip_text = true
+	_lbl_gold.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_lbl_gold.add_theme_font_size_override("font_size", 14)
 	_lbl_gold.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
 	stats.add_child(_lbl_gold)
@@ -440,6 +446,16 @@ func _build_right(root: Control) -> void:
 	pause.pressed.connect(_toggle_pause)
 	_style_button(pause)
 	v.add_child(pause)
+	_lbl_objective = Label.new()
+	_lbl_objective.custom_minimum_size.x = 240.0
+	_lbl_objective.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_lbl_objective.add_theme_font_size_override("font_size", 13)
+	_lbl_objective.add_theme_color_override("font_color", Color(0.85, 0.9, 0.92))
+	_lbl_objective.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var objective_panel := _panel()
+	objective_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	objective_panel.add_child(_lbl_objective)
+	v.add_child(objective_panel)
 	var tp := _panel()
 	tp.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var tv := VBoxContainer.new()
@@ -749,6 +765,9 @@ func _process(delta: float) -> void:
 		nt = "   [Нейтр.: %s]" % String((Global.NEUTRAL_ITEMS[hero.neutral_item] as Dictionary)["name"])
 	_lbl_name.text = "%s   Очки навыков: %d%s" % [hero.hero_title, hero.skill_points, nt]
 	_lbl_gold.text = "Золото: %d%s" % [hero.gold, _buff_text()]
+	if Global.elapsed >= _objective_at:
+		_objective_at = Global.elapsed + 1.0
+		_update_objective_hint()
 	_lbl_level.text = str(hero.level)
 	_set_bar(_bar_hp, _hp_shown, hero.max_hp, "%d / %d   +%.1f" % [int(hero.hp), int(hero.max_hp), hero.hp_regen])
 	_set_bar(_bar_mp, _mp_shown, hero.max_mp, "%d / %d   +%.1f" % [int(hero.mp), int(hero.max_mp), hero.mp_regen])
@@ -822,6 +841,27 @@ func _process(delta: float) -> void:
 	for m in _msgs:
 		lines.append(m[0])
 	_lbl_msgs.text = "\n".join(lines)
+
+
+func _update_objective_hint() -> void:
+	if Global.test_mode:
+		_lbl_objective.text = "Песочница: пробуйте способности и предметы. Прогресс здесь не начисляется."
+		return
+	var objective := "Цель: идите со своей волной к вражеской башне. Затем разрушьте трон."
+	if hero.hp < hero.max_hp * 0.3:
+		objective = "Цель: отступите к своему фонтану и восстановите здоровье."
+	elif Global.siege_waves[hero.team] > 0:
+		objective = "Цель: используйте усиленные осадные волны для атаки башен."
+	var purchase := "Сборка завершена — помогите союзнику на карте."
+	if is_instance_valid(hero.courier) and not hero.courier.stash.is_empty():
+		purchase = "Курьер несёт покупки: кнопка «Курьер» отправит его к вам."
+	else:
+		for id in BuildGuide.items(hero.hero_id, hero.build_choice):
+			if id == "boots" and hero.inventory.has("battle_boots"): continue
+			if hero.inventory.has(id): continue
+			purchase = "F4: %s · %d золота" % [Global.ITEMS[id]["name"], Global.item_price(hero.inventory, id)]
+			break
+	_lbl_objective.text = objective + "\n" + purchase
 
 
 func _portrait_tick(delta: float) -> void:

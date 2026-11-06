@@ -73,6 +73,9 @@ func _draw() -> void:
 			draw_arc(p, 5.5, 0.0, TAU, 16, Color.WHITE, 1.5)
 		elif u is Creep and (u as Creep).guardian:
 			draw_circle(p, 5.0, Color(0.6, 0.3, 0.7))
+		elif u is Creep and (u as Creep).guardian_empowered:
+			draw_circle(p, 2.5, u.team_color())
+			draw_rect(Rect2(p - Vector2(3, 3), Vector2(6, 6)), Color(0.2, 0.95, 0.85), false, 1.5)
 		else:
 			draw_circle(p, 1.8, u.team_color())
 	for team in 2:

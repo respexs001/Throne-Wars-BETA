@@ -49,6 +49,32 @@ func run() -> void:
     reservation.task_until = global.elapsed + 12
     var strategy = load("res://scripts/TeamStrategy.gd")
     assert(strategy.committed(self, reservation.hero.team, reservation.task_position, null) >= 1)
+    var enemy_bots := bots.filter(func(b): return b.hero.team == 1)
+    var caller = enemy_bots[0]
+    var covering = enemy_bots[1]
+    var old_position: Vector3 = covering.hero.position
+    covering.hero.position = Vector3.ZERO
+    covering.task_kind = "defend"
+    covering.task_position = Vector3.ZERO
+    covering.task_until = global.elapsed + 12
+    assert(strategy.covering(self, 1, Vector3.ZERO, caller) == 1, "Nearby reserved defender counted twice")
+    var traveller = game._make_hero("titan", 1, false, 0, 1)
+    traveller.position = Vector3(200, 0, 0)
+    game._add_bot(traveller, 1)
+    var travel_bot: Node
+    for b in get_nodes_in_group("strategic_bots"):
+        if b.hero == traveller: travel_bot = b
+    travel_bot.task_kind = "defend"
+    travel_bot.task_position = Vector3.ZERO
+    travel_bot.task_until = global.elapsed + 12
+    assert(strategy.covering(self, 1, Vector3.ZERO, caller) == 2, "Travelling and nearby defenders were not combined")
+    traveller.position = global.fountain_pos(1)
+    traveller.gold = 2500
+    travel_bot._physics_process(0.25)
+    assert(traveller.inventory.has("boots") or traveller.inventory.has("battle_boots"), "Bot did not shop at the fountain")
+    travel_bot.free()
+    traveller.free()
+    covering.hero.position = old_position
     game._spawn_guardian()
     var guardian = game._guardian
     guardian.take_damage(100000, game.player, "pure", false)
@@ -58,6 +84,7 @@ func run() -> void:
     assert(global.siege_waves[0] == 1)
     var count_after: int = global.units().filter(func(u): return u.get_script().resource_path.ends_with("Creep.gd") and u.siege and u.team == 0).size()
     assert(count_after - count_before == 3, "Guardian wave did not add one siege creep per lane")
+    assert(global.units().filter(func(u): return u.get_script().resource_path.ends_with("Creep.gd") and u.guardian_empowered).size() == 3)
     game._spawn_wave()
     assert(global.siege_waves[0] == 0)
     print("PASS: recommended 2v2 roster, task reservations, guardian start, rewards and exactly two empowered waves")

@@ -8,7 +8,7 @@
 
 ## Начать играть
 
-Готовая проверенная Windows-сборка появится в [Releases](https://github.com/zenagolev0-hub/Throne-Wars-BETA/releases), когда будут закрыты критерии выпуска. Если раздел пуст, готового публичного релиза ещё нет.
+Готовая проверенная Windows-сборка появится в [Releases](https://github.com/respexs001/Throne-Wars-BETA/releases), когда будут закрыты критерии выпуска. Если раздел пуст, готового публичного релиза ещё нет.
 
 Распакуйте ZIP и запустите `ThroneWars.exe`. Godot для игровой сборки не нужен. На первом экране нажмите **«Играть гостем»** или создайте локальный профиль. Гостевой прогресс существует до выхода из игры; профиль сохраняет статистику и мастерство на устройстве. Сетевой регистрации и мультиплеера нет.
 
@@ -53,6 +53,7 @@
 python tools/test.py --godot "C:/path/to/Godot.exe" --suite core
 python tools/test.py --godot "C:/path/to/Godot.exe" --suite acceptance --workers 3
 python tools/build_windows.py --godot "C:/path/to/Godot.exe" --templates "C:/path/to/4.7.2.stable"
+python tools/test_windows.py "build/windows/ThroneWars-1.0.3-alpha.1-candidate.zip"
 ```
 
 Все тестовые данные изолируются временным APPDATA/XDG-каталогом. Не запускайте старые внешние проверочные сценарии над настоящими аккаунтами.
