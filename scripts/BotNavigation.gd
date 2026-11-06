@@ -1,6 +1,7 @@
 extends RefCounted
 ## Shared obstacle-aware routing. The map's collision circles are authoritative.
-const CELL: float = 6.0
+const CELL: float = 4.0
+const HALF_CELLS: int = 75
 static var _scene_id: int = 0
 static var _grids: Dictionary = {}
 
@@ -11,16 +12,16 @@ static func route(from: Vector3, to: Vector3, radius: float, scene: Node) -> Arr
     var bucket: int = ceili(radius)
     if not _grids.has(bucket):
         var grid := AStarGrid2D.new()
-        grid.region = Rect2i(-50, -50, 101, 101)
+        grid.region = Rect2i(-HALF_CELLS, -HALF_CELLS, HALF_CELLS * 2 + 1, HALF_CELLS * 2 + 1)
         grid.cell_size = Vector2.ONE * CELL
         grid.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_ONLY_IF_NO_OBSTACLES
         grid.default_compute_heuristic = AStarGrid2D.HEURISTIC_OCTILE
         grid.default_estimate_heuristic = AStarGrid2D.HEURISTIC_OCTILE
         grid.update()
-        for x in range(-50, 51):
-            for z in range(-50, 51):
+        for x in range(-HALF_CELLS, HALF_CELLS + 1):
+            for z in range(-HALF_CELLS, HALF_CELLS + 1):
                 var pos := Vector3(float(x) * CELL, 0, float(z) * CELL)
-                var displaced := Global.push_out(pos, float(bucket) + 2.5)
+                var displaced := Global.push_out(pos, float(bucket) + 0.75)
                 if Global.flat_dist(pos, displaced) > 0.05:
                     grid.set_point_solid(Vector2i(x, z))
         _grids[bucket] = grid
@@ -39,7 +40,7 @@ static func route(from: Vector3, to: Vector3, radius: float, scene: Node) -> Arr
     return path
 
 static func _open_cell(grid: AStarGrid2D, pos: Vector3) -> Vector2i:
-    var center := Vector2i(clampi(roundi(pos.x / CELL), -50, 50), clampi(roundi(pos.z / CELL), -50, 50))
+    var center := Vector2i(clampi(roundi(pos.x / CELL), -HALF_CELLS, HALF_CELLS), clampi(roundi(pos.z / CELL), -HALF_CELLS, HALF_CELLS))
     for r in range(0, 7):
         var best := Vector2i(999, 999)
         var distance: float = INF

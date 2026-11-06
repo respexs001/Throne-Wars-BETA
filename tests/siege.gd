@@ -43,5 +43,35 @@ func run() -> void:
         if hero.building_damage > 0: break
     assert(hero.building_damage > 0, "Bot failed to route around an obstacle and damage a covered tower")
     assert(tower.hp < tower.max_hp)
+    var own_tower = load("res://scripts/Building.gd").new()
+    own_tower.team = 0
+    own_tower.position = Vector3(-20, 0, 0)
+    arena.add_child(own_tower)
+    own_tower.hp = own_tower.max_hp * 0.3
+    own_tower.set_physics_process(false)
+    var enemy_creep = load("res://scripts/Creep.gd").new()
+    enemy_creep.team = 1
+    enemy_creep.position = own_tower.position
+    arena.add_child(enemy_creep)
+    enemy_creep.set_physics_process(false)
+    var teammate = load("res://scripts/BaseHero.gd").new()
+    teammate.team = 0
+    teammate.position = Vector3(150, 0, 150)
+    arena.add_child(teammate)
+    teammate.set_physics_process(false)
+    var defender = load("res://scripts/StrategicBot.gd").new()
+    defender.hero = teammate
+    arena.add_child(defender)
+    defender.set_physics_process(false)
+    defender.task_kind = "defend"
+    defender.task_position = Vector3(150, 0, -150)
+    defender.task_until = global.elapsed + 18
+    bot._plan_objective()
+    assert(bot.task_kind != "defend", "Both teammates abandoned siege for ordinary creep defense")
+    defender.task_kind = "lane"
+    bot._plan_at = 0
+    bot._plan_objective()
+    assert(bot.task_kind == "defend", "Unassigned endangered tower was ignored")
     print("PASS: obstacle-aware siege approach, attack order and actual building damage")
+    print("PASS: one ordinary-wave defender preserves a teammate for proactive objectives")
     quit()

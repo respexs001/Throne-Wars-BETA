@@ -85,6 +85,8 @@ func _plan_objective() -> void:
         # An ordinary wave at a healthy outer tower is not an emergency.
         if enemy_heroes == 0 and not b.is_throne and b.hp > b.max_hp * 0.65 and pressure < 4.0:
             continue
+        if enemy_heroes == 0 and not b.is_throne and TeamStrategy.assigned_defenders(get_tree(), hero.team, self) >= 1:
+            continue
         var defenders := TeamStrategy.covering(get_tree(), hero.team, b.global_position, self)
         var distance := Global.flat_dist(hero.global_position, b.global_position)
         var score: float = pressure * 12.0 + (1.0 - b.hp / b.max_hp) * 25.0
@@ -297,6 +299,11 @@ func _reset_combat_state() -> void:
 func _try_guardian() -> bool:
     if difficulty < 1 or hero.level < 4 or _ratio < 0.75 or hero.mp < hero.max_mp * 0.25 or _fd < 80.0 or _now() - _last_objective < 40.0:
         return false
+    # An exposed enemy base is a finishing opportunity, ahead of another boss trip.
+    for node in Global.units():
+        var building := node as Building
+        if building != null and building.alive and building.team != hero.team and building.tier >= 3 and not building.invulnerable:
+            return false
     var allies: int = 0
     for ally in Global.heroes_of(hero.team):
         if ally != hero and ally.alive and ally.hp > ally.max_hp * 0.6 and Global.flat_dist(ally.global_position, hero.global_position) < 180.0:
@@ -359,6 +366,8 @@ func _execute_objective() -> bool:
             best_distance = d
             target = building
     if target == null: return false
+    task_position = target.global_position
+    task_until = _now() + 12.0
     if _creeps_near(target.global_position, 45.0, false) >= 2 and (_foe == null or _fd > 35.0 or _local_balance() > 1.2):
         strategy = "Осада с союзной волной"
         if best_distance < hero.attack_range + hero.body_radius + target.body_radius + 1.0:

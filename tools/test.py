@@ -26,19 +26,19 @@ def execute(godot,script=None,args=(),timeout=600,case='test',report_dir=None,im
    errors=[line for line in text.splitlines() if ('SCRIPT ERROR:' in line or line.startswith('ERROR:')) and not (script=='auth.gd' and 'ConfigFile parse error' in line)]
    if code_fingerprint()!=signature:errors.append('Game source changed while the case was running')
    ok=result.returncode==0 and not errors and (import_only or 'PASS:' in text or 'RESULT ' in text)
-   return {'case':case,'ok':ok,'exit':result.returncode,'wall_seconds':round(time.monotonic()-started,2),'code_sha256':signature,'errors':errors,'report':json.loads(data.read_text()) if data.exists() else None}
+   return {'case':case,'ok':ok,'exit':result.returncode,'wall_seconds':round(time.monotonic()-started,2),'code_sha256':signature,'errors':errors,'report':json.loads(data.read_text(encoding='utf-8')) if data.exists() else None}
   except subprocess.TimeoutExpired:
    return {'case':case,'ok':False,'wall_seconds':round(time.monotonic()-started,2),'errors':['Process timed out'], 'report':None}
 def main():
  ap=argparse.ArgumentParser();ap.add_argument('--godot',default=os.environ.get('GODOT_BIN') or shutil.which('godot') or shutil.which('godot.exe'))
  ap.add_argument('--suite',choices=['core','balance','stress','acceptance'],default='core');ap.add_argument('--workers',type=int,default=3);ap.add_argument('--count',type=int,default=20);ap.add_argument('--report-dir',type=Path,default=ROOT/'artifacts/validation');a=ap.parse_args()
  if not a.godot:ap.error('Pass --godot or set GODOT_BIN')
- a.report_dir.mkdir(parents=True,exist_ok=True);results=[]
+ a.report_dir.mkdir(parents=True,exist_ok=True);(a.report_dir/'summary.json').unlink(missing_ok=True);results=[]
  if a.report_dir.resolve().is_relative_to((ROOT/'artifacts').resolve()):(ROOT/'artifacts/.gdignore').touch(exist_ok=True)
  result=execute(a.godot,case='clean-import',report_dir=a.report_dir,import_only=True,timeout=120);results.append(result);print(json.dumps(result),flush=True)
  if not result['ok']:return 1
  if a.suite in ['core','acceptance']:
-  for case in ['auth','core','lifetime','heroes','tutorial','siege']:
+  for case in ['auth','core','lifetime','heroes','tutorial','siege','endgame','navigation']:
    r=execute(a.godot,case+'.gd',case=case,report_dir=a.report_dir,timeout=120);results.append(r);print(json.dumps(r),flush=True)
    if not r['ok']:break
  if all(r['ok'] for r in results) and a.suite in ['balance','acceptance']:

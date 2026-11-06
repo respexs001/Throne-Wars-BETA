@@ -87,13 +87,13 @@ func _build_screen() -> void:
     content.add_theme_constant_override("separation", 12)
     card.add_child(content)
 
-    var eyebrow := _label("THRONE WARS  •  ACCOUNT SYSTEM", 12, MUTED)
+    var eyebrow := _label("THRONE WARS  •  ЛОКАЛЬНАЯ АЛЬФА", 12, MUTED)
     eyebrow.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     content.add_child(eyebrow)
     var title := _label("ВРАТА КОРОЛЕВСТВА", 29, GOLD)
     title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     content.add_child(title)
-    var subtitle := _label("Войдите или создайте аккаунт, чтобы продолжить.", 15, MUTED)
+    var subtitle := _label("Начните гостем или войдите в локальный профиль.", 15, MUTED)
     subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
     content.add_child(subtitle)

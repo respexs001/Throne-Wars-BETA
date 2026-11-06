@@ -101,6 +101,7 @@ func finish(won: bool) -> void:
     for hero in settings.heroes_of(0) + settings.heroes_of(1):
         hero_reports.append({"hero": hero.hero_id, "team": hero.team, "level": hero.level, "last_hits": hero.last_hits, "building_damage": hero.building_damage, "objectives": hero.objectives, "gold": hero.gold, "inventory": hero.inventory})
     report["final_match_heroes"] = hero_reports
+    report["diagnostics"] = _diagnostics()
     var file := FileAccess.open(output, FileAccess.WRITE)
     if file == null:
         push_error("Cannot write autoplay report: " + output)
@@ -110,3 +111,14 @@ func finish(won: bool) -> void:
     file.close()
     print("RESULT ", JSON.stringify(report))
     quit()
+
+func _diagnostics() -> Dictionary:
+    var bots: Array = []
+    for bot in get_nodes_in_group("strategic_bots"):
+        var h = bot.hero
+        bots.append({"hero": h.hero_id, "team": h.team, "x": h.position.x, "z": h.position.z, "alive": h.alive, "mode": int(bot.mode), "task": bot.task_kind, "strategy": bot.strategy, "goal_x": bot.task_position.x, "goal_z": bot.task_position.z, "route_points": bot._route_path.size(), "attack_target": h.attack_target.unit_name if is_instance_valid(h.attack_target) else ""})
+    var buildings: Array = []
+    for u in settings.units():
+        if u.get_script().resource_path.ends_with("Building.gd") and u.alive:
+            buildings.append({"team": u.team, "tier": u.tier, "lane": u.lane, "hp": u.hp, "invulnerable": u.invulnerable, "backdoor": u.backdoor_protected, "x": u.position.x, "z": u.position.z})
+    return {"bots": bots, "buildings": buildings}

@@ -14,7 +14,7 @@ def main():
   exes=list(temp.rglob('ThroneWars.exe'))
   if len(exes)!=1:raise RuntimeError('Expected one game executable')
   exe=exes[0];env=os.environ.copy();env.update(APPDATA=str(temp/'data'),XDG_DATA_HOME=str(temp/'data'),XDG_CONFIG_HOME=str(temp/'data'),THRONE_WARS_TEST='1')
-  manifest=json.loads((exe.parent/'manifest.json').read_text())
+  manifest=json.loads((exe.parent/'manifest.json').read_text(encoding='utf-8'))
   exe_sha256=hashlib.file_digest(exe.open('rb'),'sha256').hexdigest()
   if exe_sha256!=manifest['sha256_exe']:raise RuntimeError('Executable does not match manifest')
   log=a.report_dir/'packaged-core.log';data=a.report_dir/'packaged-result.json';data.unlink(missing_ok=True);start=time.monotonic()
@@ -28,7 +28,7 @@ def main():
   if len(reports)==1:data.write_bytes(reports[0].read_bytes())
   text=log.read_text(encoding='utf-8',errors='replace') if log.exists() else result.stdout.decode(errors='replace')
   errors=[line for line in text.splitlines() if 'SCRIPT ERROR:' in line or line.startswith('ERROR:')]
-  runtime=json.loads(data.read_text()) if data.exists() else {'passed':False,'errors':['Runtime did not produce verification report']}
+  runtime=json.loads(data.read_text(encoding='utf-8')) if data.exists() else {'passed':False,'errors':['Runtime did not produce verification report']}
   if runtime.get('version')!=manifest['version']:runtime['errors'].append('Runtime and manifest versions differ')
   errors+=runtime['errors'];ok=result.returncode==0 and not errors and runtime['passed']
   report={'passed':ok,'exit':result.returncode,'wall_seconds':round(time.monotonic()-start,2),'editor_used':False,'data_isolated':True,'errors':errors,'archive':a.archive.name,'exe_sha256':exe_sha256,'source_sha256':manifest['source_sha256'],'benchmark':a.benchmark,'runtime':runtime}
