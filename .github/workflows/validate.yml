@@ -1,0 +1,24 @@
+name: Validate Godot alpha
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Install pinned Godot
+        run: |
+          curl --fail --location --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q godot.zip -d "$RUNNER_TEMP/godot"
+          chmod +x "$RUNNER_TEMP/godot/Godot_v4.7.2-stable_linux.x86_64"
+      - name: Clean import and isolated regressions
+        run: python tools/test.py --godot "$RUNNER_TEMP/godot/Godot_v4.7.2-stable_linux.x86_64" --suite core
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: regression-evidence
+          path: artifacts/validation/

@@ -1,0 +1,24 @@
+name: Ошибка игры
+description: Сообщить о воспроизводимой проблеме
+title: "[Bug]: "
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Версия игры и ОС
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Шаги воспроизведения
+      description: Герой, режим матча, действия и ожидаемый результат.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Что произошло
+      description: Добавьте снимок или фрагмент журнала без паролей и персональных данных.
+    validations:
+      required: true

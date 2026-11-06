@@ -1,0 +1,16 @@
+.godot/
+build/
+artifacts/
+.test-data/
+*.log
+*.translation
+export_credentials.cfg
+accounts.cfg
+accounts.tmp
+settings.cfg
+.env
+.env.*
+*.keystore
+*.pfx
+*.p12
+__pycache__/
