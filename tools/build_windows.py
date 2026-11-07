@@ -12,7 +12,7 @@ def main():
  for name in ['windows_release_x86_64.exe','windows_debug_x86_64.exe','version.txt']:
   if not (a.templates/name).is_file():ap.error('Missing matching template: '+name)
  if (a.templates/'version.txt').read_text().strip()!='4.7.2.stable':ap.error('Templates must be 4.7.2.stable')
- a.output.mkdir(parents=True,exist_ok=True)
+ a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
  (a.output/'.gdignore').touch(exist_ok=True)
  package=a.output/f'ThroneWars-{VERSION}-candidate';package.mkdir(exist_ok=True)
  with tempfile.TemporaryDirectory(prefix='thronewars-export-') as tmp:
