@@ -2,7 +2,7 @@
 from pathlib import Path
 import argparse,hashlib,json,os,re,shutil,subprocess,tempfile,zipfile
 ROOT=Path(__file__).resolve().parents[1]
-VERSION='1.0.3-alpha.1'
+VERSION=re.search(r'const VERSION: String = "([^"]+)"', (ROOT/'scripts/AppVersion.gd').read_text(encoding='utf-8')).group(1)
 def run(cmd,env,log):
  r=subprocess.run(cmd,env=env,cwd=ROOT,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=240,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
  text=log.read_text(encoding='utf-8',errors='replace') if log.exists() else r.stdout.decode(errors='replace')

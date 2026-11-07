@@ -13,6 +13,15 @@ func capture(name: String) -> void:
     root.get_texture().get_image().save_png(output.path_join(name + ".png"))
 func run() -> void:
     var global := root.get_node("Global")
+    root.size = Vector2i(1280, 720)
+    var gate = load("res://scripts/AuthGate.gd").new()
+    root.add_child(gate)
+    await create_timer(0.85).timeout
+    await capture("auth-1280")
+    root.size = Vector2i(1920, 1080)
+    await capture("auth-1920")
+    gate.queue_free()
+    await process_frame
     root.get_node("ProfileService").start_guest()
     global.quality = 1
     global.fps_cap = 0
@@ -22,6 +31,7 @@ func run() -> void:
     root.add_child(menu)
     current_scene = menu
     menu._pick("smugr")
+    assert(not menu._panels.has("test"))
     await capture("menu-1280")
     root.size = Vector2i(1920, 1080)
     await capture("menu-1920")
@@ -54,5 +64,8 @@ func run() -> void:
     var neutral_ids: Array = global.NEUTRAL_ITEMS.keys()
     game.player.neutral_item = neutral_ids[0]
     await capture("hud-late-1280")
+    global.elapsed = 300.0
+    game._update_daynight()
+    await capture("hud-night-1280")
     print("PASS: rendered menu and HUD at 1280x720 and 1920x1080")
     quit()

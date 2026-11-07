@@ -7,6 +7,8 @@ func _initialize() -> void:
     call_deferred("run")
 func run() -> void:
     var global := root.get_node("Global")
+    assert(global.VERSION == ProjectSettings.get_setting("application/config/version"), "Project metadata version differs")
+    assert(global.VERSION == MatchBalance.VERSION)
     var service := root.get_node("ProfileService")
     assert(AuthBackend.validate_password("NineChars") != "")
     assert(AuthBackend.validate_password("SkyRiver42") == "")

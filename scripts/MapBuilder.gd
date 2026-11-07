@@ -199,7 +199,7 @@ static func _near_base(p: Vector3, d: float) -> bool:
 
 static func _lanes(root: Node3D) -> void:
 	var dirt := _tmat(load("res://assets/renewal/slate.svg"), 0.025, true)
-	dirt.albedo_color = Color(0.48, 0.57, 0.59)
+	dirt.albedo_color = Color(0.28, 0.3, 0.29)
 	var edge := _tmat(_tex((_b["dirt_a"] as Color).darkened(0.35), (_b["dirt_b"] as Color).darkened(0.35), 0.05, 32, 256), 0.05, true)
 	for lane in 3:
 		var pts: Array = Global.LANES[lane]
@@ -248,20 +248,20 @@ static func _river(root: Node3D, out: Dictionary) -> void:
 # ---------- базы ----------
 static func _bases(root: Node3D, out: Dictionary) -> void:
 	# Свет: белый мрамор с золотом. Тьма: чёрный обсидиан с багровыми знаками.
-	var marble := _tmat(_tex(Color(0.7, 0.7, 0.72), Color(0.93, 0.91, 0.86), 0.04, 101, 256), 0.04, true, 5.0)
+	var marble := _tmat(_tex(Color(0.25, 0.28, 0.29), Color(0.44, 0.45, 0.42), 0.04, 101, 256), 0.04, true, 5.0)
 	var obsidian := _tmat(_tex(Color(0.08, 0.07, 0.1), Color(0.24, 0.2, 0.26), 0.05, 102, 256), 0.04, true, 5.0)
 	for t in [0, 1]:
 		var c := Global.throne_pos(t)
 		var f := Global.forward(t)
 		var mat: Material = marble if t == 0 else obsidian
-		var trim: Color = Color(1.0, 0.82, 0.35) if t == 0 else Color(0.95, 0.2, 0.2)
-		var trim_mat := Global.get_mat(trim, 0.8)
+		var trim: Color = Color(0.52, 0.45, 0.29) if t == 0 else Color(0.46, 0.19, 0.16)
+		var trim_mat := Global.get_mat(trim, 0.05)
 		var base_a := atan2(-f.z, -f.x)
 		# восьмигранный двор и ступенчатый постамент
 		_cyl(root, 52.0, 52.0, 0.3, c + Vector3(0.0, 0.15, 0.0), mat, 8)
 		_cyl(root, 30.0, 32.0, 1.0, c + Vector3(0.0, 0.6, 0.0), mat, 8)
 		_cyl(root, 22.0, 24.0, 1.0, c + Vector3(0.0, 1.6, 0.0), mat, 8)
-		_ring(root, 31.0, 0.6, c + Vector3(0.0, 1.2, 0.0), trim, 1.0)
+		_ring(root, 31.0, 0.6, c + Vector3(0.0, 1.2, 0.0), trim, 0.1)
 		# дорожка от ворот к трону
 		var path := Vector3(f.x, 0.0, f.z)
 		_box(root, Vector3(7.0, 0.12, 52.0), c + path * 40.0 + Vector3(0.0, 0.36, 0.0), trim_mat, atan2(path.x, path.z))
@@ -310,7 +310,7 @@ static func _bases(root: Node3D, out: Dictionary) -> void:
 		# фонтан-пруд перед ступенями
 		var fp := Global.fountain_pos(t)
 		_cyl(root, 11.0, 12.0, 0.8, fp + Vector3(0.0, 0.4, 0.0), mat, 20)
-		_cyl(root, 9.5, 9.5, 0.85, fp + Vector3(0.0, 0.45, 0.0), Global.get_mat(Color(0.2, 0.6, 0.85), 0.8), 20)
+		_cyl(root, 9.5, 9.5, 0.85, fp + Vector3(0.0, 0.45, 0.0), Global.get_mat(Color(0.12, 0.27, 0.29), 0.12), 20)
 		_cyl(root, 1.2, 1.8, 5.0, fp + Vector3(0.0, 2.5, 0.0), mat, 10)
 		# залы по бокам двора (декор)
 		for ang in [-1.0, 1.0]:
@@ -355,12 +355,12 @@ static func _rune_spots(root: Node3D) -> void:
 	for p in Global.RUNE_SPOTS:
 		var pos: Vector3 = p
 		_cyl(root, 9.0, 9.0, 0.3, pos + Vector3(0.0, 0.25, 0.0), stone, 20)
-		_ring(root, 8.5, 0.5, pos + Vector3(0.0, 0.5, 0.0), Color(0.7, 0.9, 1.0), 1.6)
+		_ring(root, 8.5, 0.5, pos + Vector3(0.0, 0.5, 0.0), Color(0.32, 0.47, 0.52), 0.2)
 	for p in Global.BOUNTY_SPOTS:
 		for q in [p, Global.mirror(p)]:
 			var pos2: Vector3 = q
 			_cyl(root, 5.0, 5.0, 0.25, pos2 + Vector3(0.0, 0.2, 0.0), stone, 16)
-			_ring(root, 4.6, 0.4, pos2 + Vector3(0.0, 0.4, 0.0), Color(1.0, 0.85, 0.3), 1.4)
+			_ring(root, 4.6, 0.4, pos2 + Vector3(0.0, 0.4, 0.0), Color(0.52, 0.43, 0.28), 0.2)
 
 
 static func _border(root: Node3D) -> void:

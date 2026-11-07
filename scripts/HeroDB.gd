@@ -200,7 +200,7 @@ static func _build() -> Array:
         {"id": "smugr", "name": "Смугр", "role": "Иллюзионист / ловкач", "primary": "agi", "melee": true,
          "str": 19.0, "agi": 24.0, "int": 18.0, "str_gain": 2.0, "agi_gain": 3.2, "int_gain": 1.8,
          "base_dmg": 24.0, "armor": 2.0, "ms": 8.1, "bat": 1.5, "range": 2.1, "attack_point": 0.28,
-         "model": {"scale": 1.0, "build": "slim", "body": Color(0.55, 0.2, 0.75), "accent": Color(0.85, 0.4, 1.0), "skin": Color(0.75, 0.65, 0.85), "weapon": "daggers", "hat": "hood", "cape": true, "eyes": Color(0.9, 0.3, 1.0), "hair": "short", "hair_color": Color(0.3, 0.1, 0.4), "aura": Color(0.7, 0.3, 0.9), "emblem": Color(0.8, 0.4, 1.0)},
+         "model": {"scale": 1.0, "build": "slim", "body": Color(0.55, 0.2, 0.75), "accent": Color(0.85, 0.4, 1.0), "skin": Color(0.75, 0.65, 0.85), "weapon": "daggers", "asset_scene": "res://assets/characters/smugr/smugr.glb", "hat": "hood", "cape": true, "eyes": Color(0.9, 0.3, 1.0), "hair": "short", "hair_color": Color(0.3, 0.1, 0.4), "aura": Color(0.7, 0.3, 0.9), "emblem": Color(0.8, 0.4, 1.0)},
          "abilities": [
             _a("Mirror Image", "illusions", "none", {"icon": "star", "desc": "Зеркальная копия: создает 2 иллюзии на 18 сек.", "count": 2, "dur": 18.0, "dmg_deal": [0.25, 0.35, 0.45, 0.55], "dmg_take": 2.5, "mana": 85.0, "cd": [24.0, 22.0, 20.0, 18.0]}),
             _a("Phantom Shift", "blink", "point", {"icon": "dash", "desc": "Призрачный шаг: телепорт в выбранную точку.", "range": [11.0, 13.0, 15.0, 17.0], "color": Color(0.7, 0.3, 0.9), "mana": 65.0, "cd": 12.0}),

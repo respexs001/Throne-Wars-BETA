@@ -8,6 +8,7 @@ var player: BaseHero
 var bot: BaseHero
 var next_wave_in: float = MatchBalance.FIRST_WAVE
 var _wave: int = 0
+var _wave_spawner := LaneWaveSpawner.new()
 var _camps: Array = []
 var _guardian: Creep = null
 var _guardian_wait: float = MatchBalance.GUARDIAN_FIRST
@@ -135,11 +136,11 @@ func _update_daynight() -> void:
 	if day_now != Global.is_day:
 		Global.is_day = day_now
 		SignalBus.day_night_changed.emit(day_now)
-	_sun.light_energy = lerpf(0.3, 1.15, k)
-	_sun.light_color = Color(0.5, 0.6, 1.0).lerp(Color(1.0, 0.95, 0.85), k)
+	_sun.light_energy = lerpf(0.28, 0.82, k)
+	_sun.light_color = Color(0.5, 0.6, 1.0).lerp(Color(0.95, 0.88, 0.75), k)
 	_sun.rotation_degrees.y = -30.0 + cyc * 0.12
-	_env.ambient_light_energy = lerpf(0.55, 0.9, k)
-	_env.ambient_light_color = Color(0.35, 0.4, 0.6).lerp(Color(0.85, 0.87, 0.95), k)
+	_env.ambient_light_energy = lerpf(0.42, 0.62, k)
+	_env.ambient_light_color = Color(0.35, 0.4, 0.6).lerp(Color(0.68, 0.72, 0.78), k)
 	_sky.sky_top_color = Color(0.03, 0.05, 0.16).lerp(_biome["sky_top"] as Color, k)
 	_sky.sky_horizon_color = Color(0.1, 0.12, 0.25).lerp(_biome["sky_horizon"] as Color, k)
 	_sky.ground_horizon_color = _sky.sky_horizon_color
@@ -186,36 +187,7 @@ func _build_buildings() -> void:
 # ---------- крипы линий ----------
 func _spawn_wave() -> void:
 	_wave += 1
-	var siege_wave := _wave % 4 == 0
-	for t in [0, 1]:
-		for lane in 3:
-			var path: Array = Global.lane_path(t, lane)
-			var p0: Vector3 = path[0]
-			var p1: Vector3 = path[1]
-			var dir := (p1 - p0).normalized()
-			var side := Vector3(-dir.z, 0.0, dir.x)
-			# пачка всегда из 5 крипов: 4 ближних и 1 дальний; в осадную волну первый ближний становится осадным
-			var kinds: Array = ["melee", "melee", "melee", "melee", "ranged"]
-			if siege_wave:
-				kinds[0] = "siege"
-			if Global.siege_waves[t] > 0:
-				kinds.append("guardian_siege")
-			for i in kinds.size():
-				var c := Creep.new()
-				c.team = t
-				c.lane = lane
-				c.wave = _wave
-				c.ranged_creep = kinds[i] == "ranged"
-				c.siege = kinds[i] in ["siege", "guardian_siege"]
-				c.guardian_empowered = kinds[i] == "guardian_siege"
-				c.path = path
-				c.goal_pos = Global.throne_pos(1 - t)
-				var sp := p0 - dir * (float(i) * 4.6) + side * ((float(i % 2) - 0.5) * 4.0)
-				c.position = Vector3(clampf(sp.x, -Global.MAP_HALF + 4.0, Global.MAP_HALF - 4.0), 0.0, clampf(sp.z, -Global.MAP_HALF + 4.0, Global.MAP_HALF - 4.0))
-				add_child(c)
-
-	for t in 2:
-		Global.siege_waves[t] = maxi(0, Global.siege_waves[t] - 1)
+	_wave_spawner.spawn(self, _wave)
 
 
 # ---------- нейтралы и страж ----------

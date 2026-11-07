@@ -4,7 +4,7 @@
 
 Небольшая офлайн-MOBA на Godot: выберите героя, развивайтесь в бою, помогайте союзнику и разрушьте вражеский трон.
 
-**Версия:** 1.0.3-alpha.1 — публичный прототип в разработке. Цель баланса: матчи 10–15 минут. Готовность сборки и реальные результаты проверок публикуются в [отчёте](docs/VALIDATION.md); наличие исходников не означает, что все критерии альфы пройдены.
+**Версия:** 1.0.3-alpha.2 — публичный прототип в разработке. Цель баланса: матчи 10–15 минут. Готовность сборки и реальные результаты проверок публикуются в [отчёте](docs/VALIDATION.md); наличие исходников не означает, что все критерии альфы пройдены.
 
 ## Начать играть
 
@@ -53,7 +53,7 @@
 python tools/test.py --godot "C:/path/to/Godot.exe" --suite core
 python tools/test.py --godot "C:/path/to/Godot.exe" --suite acceptance --workers 3
 python tools/build_windows.py --godot "C:/path/to/Godot.exe" --templates "C:/path/to/4.7.2.stable"
-python tools/test_windows.py "build/windows/ThroneWars-1.0.3-alpha.1-candidate.zip"
+python tools/test_windows.py "build/windows/ThroneWars-1.0.3-alpha.2-candidate.zip"
 ```
 
 Все тестовые данные изолируются временным APPDATA/XDG-каталогом. Не запускайте старые внешние проверочные сценарии над настоящими аккаунтами.

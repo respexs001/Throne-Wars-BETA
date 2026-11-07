@@ -19,7 +19,7 @@ signal announce(text: String, color: Color)
 signal game_over(winner_team: int)
 signal request_pause
 
-const VERSION: String = "1.0.3-alpha.1"
+const VERSION: String = preload("res://scripts/AppVersion.gd").VERSION
 const SAVE_PATH: String = "user://settings.cfg"
 
 # ---------- МАСШТАБ И БАЛАНС ----------

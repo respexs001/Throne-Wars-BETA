@@ -38,7 +38,7 @@ def main():
  result=execute(a.godot,case='clean-import',report_dir=a.report_dir,import_only=True,timeout=120);results.append(result);print(json.dumps(result),flush=True)
  if not result['ok']:return 1
  if a.suite in ['core','acceptance']:
-  for case in ['auth','core','lifetime','heroes','tutorial','siege','endgame','navigation']:
+  for case in ['auth','core','lifetime','heroes','tutorial','siege','endgame','navigation','waves']:
    r=execute(a.godot,case+'.gd',case=case,report_dir=a.report_dir,timeout=120);results.append(r);print(json.dumps(r),flush=True)
    if not r['ok']:break
  if all(r['ok'] for r in results) and a.suite in ['balance','acceptance']:
@@ -61,3 +61,4 @@ def main():
  print(json.dumps({k:v for k,v in summary.items() if k!='cases'}),flush=True)
  return 0 if summary['automatic_checks_passed'] else 1
 if __name__=='__main__':sys.exit(main())
+

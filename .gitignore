@@ -14,3 +14,5 @@ settings.cfg
 *.pfx
 *.p12
 __pycache__/
+*.blend1
+art_source/**/detailed_backup/

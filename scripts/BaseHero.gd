@@ -146,12 +146,11 @@ func _after_ready() -> void:
 	add_child(lbl)
 	if is_player:
 		_ring = MeshInstance3D.new()
-		model.enable_occlusion_outline()
 		var tm := TorusMesh.new()
-		tm.inner_radius = 1.5 * Global.UNIT_SCALE
-		tm.outer_radius = 1.75 * Global.UNIT_SCALE
+		tm.inner_radius = 1.48 * Global.UNIT_SCALE
+		tm.outer_radius = 1.53 * Global.UNIT_SCALE
 		_ring.mesh = tm
-		_ring.material_override = Global.get_mat(Color(0.3, 0.8, 0.4), 0.25)
+		_ring.material_override = Global.get_mat(Color(0.35, 0.55, 0.45), 0.0)
 		_ring.position.y = 0.08
 		add_child(_ring)
 	if not is_player or auto_learn:

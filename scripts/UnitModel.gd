@@ -38,11 +38,19 @@ var _flash_t: float = 0.0
 var _grow: float = 1.0
 var _grow_target: float = 1.0
 var _animation_acc: float = 0.0
+var _asset_player: AnimationPlayer
+var _asset_clip: String = ""
 
 
 func build(c: Dictionary, team_col: Color) -> void:
     cfg = c
     base_scale = float(c.get("scale", 1.0))
+    if c.has("asset_scene"):
+        _root = load(String(c["asset_scene"])).instantiate()
+        add_child(_root)
+        _asset_player = _root.find_child("AnimationPlayer", true, false) as AnimationPlayer
+        scale = Vector3.ONE * base_scale
+        return
     var kind: String = c.get("build", "mid")
     _bulk = 0.8 if kind == "slim" else (1.3 if kind == "bulky" else 1.0)
     var body: Color = c.get("body", Color(0.5, 0.5, 0.5))
@@ -278,6 +286,17 @@ func _end_grow() -> void:
 # ---------- анимация ----------
 func _process(delta: float) -> void:
     if _root == null:
+        return
+    if _asset_player != null:
+        _attack_t = maxf(0.0, _attack_t - delta)
+        _cast_t = maxf(0.0, _cast_t - delta)
+        var clip := "Death" if dead else ("Stun" if stunned else ("Attack" if _attack_t > 0 else ("Cast" if _cast_t > 0 else ("Run" if moving else "Idle"))))
+        if clip != _asset_clip:
+            _asset_clip = clip
+            if _asset_player.has_animation(clip):
+                _asset_player.get_animation(clip).loop_mode = Animation.LOOP_LINEAR if clip in ["Idle", "Run", "Stun"] else Animation.LOOP_NONE
+                _asset_player.play(clip, 0.08)
+        scale = Vector3.ONE * base_scale * _grow_target
         return
     _animation_acc += delta
     var interval: float = 0.05 if Global.quality == 0 else (1.0 / 30.0 if Global.quality == 1 else 0.0)

@@ -38,7 +38,6 @@ var _play_stats: Label
 var _info_name: Label
 var _icons: HBoxContainer
 var _info: RichTextLabel
-var _test_hero: Label
 var _setting_btns: Dictionary = {}
 var _diff_chips: Array = []
 var _save_timer: Timer
@@ -372,7 +371,6 @@ func _build_ui() -> void:
 	hb.add_child(_tab_button("Герои", "heroes", group))
 	hb.add_child(_tab_button("Профиль", "profile", group))
 	hb.add_child(_tab_button("Настройки", "settings", group))
-	hb.add_child(_tab_button("Тест героя", "test", group))
 	hb.add_child(_tab_button("Обновления", "changelog", group))
 	hb.add_child(_button("Выход", 90.0, 40.0, _confirm_quit, Color(0.9, 0.4, 0.35)))
 
@@ -383,7 +381,6 @@ func _build_ui() -> void:
 	_panels["heroes"] = _build_heroes()
 	_panels["profile"] = ProfilePanel.new()
 	_panels["settings"] = _build_settings()
-	_panels["test"] = _build_test()
 	_panels["changelog"] = _build_changelog()
 	for k in _panels:
 		var p: Control = _panels[k]
@@ -398,7 +395,7 @@ func _show(key: String) -> void:
 		(_panels[panel_key] as Control).visible = panel_key == key
 	for tab_key in _tabs:
 		(_tabs[tab_key] as Button).button_pressed = tab_key == key
-	_world_view.visible = key in ["play", "heroes", "profile", "test"]
+	_world_view.visible = key in ["play", "heroes", "profile"]
 	_pivot.position = Vector3.ZERO
 
 
@@ -667,28 +664,6 @@ func _build_settings() -> Control:
 	return scroll
 
 
-# ---------- ТЕСТ ГЕРОЯ ----------
-func _build_test() -> Control:
-	var c := CenterContainer.new()
-	var pn := PanelContainer.new()
-	pn.add_theme_stylebox_override("panel", _panel_style())
-	c.add_child(pn)
-	var v := VBoxContainer.new()
-	v.custom_minimum_size = Vector2(620.0, 0.0)
-	v.add_theme_constant_override("separation", 14)
-	pn.add_child(v)
-	v.add_child(_label("Тест героя", 26, GOLD))
-	var d := Label.new()
-	d.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	d.custom_minimum_size = Vector2(600.0, 0.0)
-	d.text = "Песочница: нет волн и башен, бот стоит как манекен, мана не тратится, перезарядок нет. В паузе (Esc) - кнопки: +уровень, полное HP и MP, сброс перезарядок, очки навыков."
-	v.add_child(d)
-	_test_hero = _label("", 18, Color(0.93, 0.94, 0.92))
-	v.add_child(_test_hero)
-	v.add_child(_gold_button("НАЧАТЬ ТЕСТ", 340.0, 64.0, _on_test))
-	return c
-
-
 # ---------- обновление и действия ----------
 func _refresh() -> void:
 	_schedule_save()
@@ -699,7 +674,6 @@ func _refresh() -> void:
 	var abil_count: int = (h["abilities"] as Array).size() if h["abilities"] is Array else 0
 	_play_stats.text = "Сила %d   Ловкость %d   Интеллект %d   |   Способностей: %d" % [int(h["str"]), int(h["agi"]), int(h["int"]), abil_count]
 	_play_stats.text += "\nМастерство: %s · %d опыта%s" % [ProfileService.mastery_title(Global.selected_hero), ProfileService.mastery_xp(Global.selected_hero), " · гостевой сеанс" if ProfileService.is_guest else ""]
-	_test_hero.text = "Герой: %s (выбирается во вкладке «Герои»)" % h["name"]
 	for i in _diff_chips.size():
 		(_diff_chips[i] as Button).button_pressed = (i == Global.difficulty)
 	(_setting_btns["diff"] as Button).text = DIFF_NAMES[Global.difficulty]
@@ -768,13 +742,6 @@ func _on_play() -> void:
 	Global.test_mode = false
 	Global.test_inf_mana = false
 	Global.test_no_cd = false
-	_go_to_scene("res://scenes/Main.tscn", "res://assets/ui/loading_match.png")
-
-
-func _on_test() -> void:
-	Global.test_mode = true
-	Global.test_inf_mana = true
-	Global.test_no_cd = true
 	_go_to_scene("res://scenes/Main.tscn", "res://assets/ui/loading_match.png")
 
 
@@ -872,8 +839,6 @@ func _unhandled_input(event: InputEvent) -> void:
 			_play_click(); _show("heroes")
 		KEY_3:
 			_play_click(); _show("settings")
-		KEY_4:
-			_play_click(); _show("test")
 		KEY_ESCAPE:
 			if _any_dialog_visible():
 				return

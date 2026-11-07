@@ -7,11 +7,11 @@ const ORDER: Array = ["forest", "autumn", "winter", "desert", "volcano", "swamp"
 
 static func cfg(id: String) -> Dictionary:
     var d: Dictionary = {
-        "name": "Зелёный лес", "ground_a": Color(0.17, 0.36, 0.14), "ground_b": Color(0.34, 0.52, 0.2),
+        "name": "Зелёный лес", "ground_a": Color(0.12, 0.19, 0.13), "ground_b": Color(0.24, 0.3, 0.19),
         "detail_a": Color(0.6, 0.6, 0.6), "detail_b": Color(1.0, 1.0, 1.0),
-        "dirt_a": Color(0.45, 0.33, 0.2), "dirt_b": Color(0.64, 0.5, 0.33), "shore": Color(0.62, 0.57, 0.4), "rock": Color(0.5, 0.5, 0.52),
+        "dirt_a": Color(0.24, 0.22, 0.17), "dirt_b": Color(0.38, 0.34, 0.25), "shore": Color(0.62, 0.57, 0.4), "rock": Color(0.5, 0.5, 0.52),
         "rock_a": Color(0.22, 0.2, 0.2), "rock_b": Color(0.42, 0.4, 0.4), "rock_tint_a": Color(0.3, 0.3, 0.3), "rock_tint_b": Color(0.55, 0.55, 0.58),
-        "grass_a": Color(0.22, 0.5, 0.14), "grass_b": Color(0.42, 0.7, 0.24),
+        "grass_a": Color(0.19, 0.29, 0.15), "grass_b": Color(0.42, 0.7, 0.24),
         "pine_a": Color(0.05, 0.24, 0.12), "pine_b": Color(0.12, 0.38, 0.2), "round_a": Color(0.16, 0.42, 0.1), "round_b": Color(0.34, 0.56, 0.15),
         "round_alt": Color(0.8, 0.45, 0.1), "trunk": Color(0.28, 0.18, 0.1), "pine_ratio": 0.65, "density": 1.0,
         "prop": "bush", "prop_color": Color(0.2, 0.5, 0.15), "prop_glow": 0.0, "prop_count": 300,

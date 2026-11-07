@@ -20,13 +20,34 @@ static func _star(cen: Vector2, k: float, n: int, inner: float) -> PackedVector2
 
 
 static func paint(c: CanvasItem, r: Rect2, icon: String, col: Color) -> void:
-    c.draw_rect(r, col.darkened(0.72))
-    c.draw_rect(Rect2(r.position, Vector2(r.size.x, r.size.y * 0.5)), col.darkened(0.55))
-    c.draw_rect(Rect2(r.position + Vector2(2.0, 2.0), r.size - Vector2(4.0, 4.0)), col.darkened(0.1), false, 1.0)
+    c.draw_rect(r, Color(0.045, 0.048, 0.055))
+    c.draw_rect(Rect2(r.position + Vector2.ONE * 2, r.size - Vector2.ONE * 4), Color(0.25, 0.26, 0.28), false, 1.0)
+    col = col.lerp(Color(0.55, 0.56, 0.58), 0.35)
     var cen := r.get_center()
     var k := minf(r.size.x, r.size.y) * 0.36
     var light := col.lightened(0.6)
     var mid := col.lightened(0.2)
+    if icon in ["star", "crown", "fang", "dash"]:
+        var ink := Color(0.73, 0.71, 0.65)
+        if icon == "star":
+            for offset in [-0.28, 0.28]:
+                var points := _pts(cen + Vector2(offset * k, 0), k * 0.65, [Vector2(0,-1), Vector2(.6,-.5), Vector2(.5,.6), Vector2(0,1), Vector2(-.5,.6), Vector2(-.6,-.5), Vector2(0,-1)])
+                c.draw_polyline(points, ink, 1.8, true)
+                c.draw_line(cen + Vector2(offset-.15,-.12)*k, cen + Vector2(offset+.15,-.12)*k, ink, 1.8, true)
+        elif icon == "crown":
+            for i in 8:
+                var direction := Vector2.from_angle(TAU * i / 8.0)
+                c.draw_line(cen + direction*k*.5, cen + direction*k*.95, ink, 2.0, true)
+            c.draw_arc(cen, k*.3, 0, TAU, 24, ink, 1.5, true)
+        elif icon == "fang":
+            c.draw_colored_polygon(_pts(cen,k,[Vector2(-.1,.45),Vector2(-.25,-.25),Vector2(.65,-.95),Vector2(.3,.05)]),ink)
+            c.draw_line(cen+Vector2(-.5,.3)*k,cen+Vector2(.2,.7)*k,ink,2,true)
+            c.draw_line(cen+Vector2(-.1,.45)*k,cen+Vector2(-.5,.95)*k,ink,3,true)
+        else:
+            for i in 3:
+                var x := -.65 + i*.5
+                c.draw_polyline(_pts(cen,k,[Vector2(x-.2,-.6),Vector2(x+.2,0),Vector2(x-.2,.6)]),ink,1.8,true)
+        return
     match icon:
         "fire":
             c.draw_colored_polygon(_pts(cen, k, [Vector2(0, -1), Vector2(0.35, -0.45), Vector2(0.6, 0.05), Vector2(0.45, 0.6), Vector2(0, 1), Vector2(-0.45, 0.6), Vector2(-0.6, 0.05), Vector2(-0.3, -0.4)]), Color(1.0, 0.5, 0.1))

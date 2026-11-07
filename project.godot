@@ -16,7 +16,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 config/name="Throne Wars"
 config/description="Throne Wars: 3D MOBA 1 на 1, 2 на 2 и 5 на 5"
-config/version="1.0.3-alpha.1"
+config/version="1.0.3-alpha.2"
 run/main_scene="res://scenes/AuthGate.tscn"
 config/quit_on_go_back=false
 config/features=PackedStringArray("4.7", "GL Compatibility")

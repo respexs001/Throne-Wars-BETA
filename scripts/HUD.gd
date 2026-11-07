@@ -5,8 +5,8 @@ extends CanvasLayer
 ## объявления, пауза с настройками, выкуп, итоги матча.
 
 const GOLD: Color = Color(0.82, 0.32, 0.26)
-const PANEL: Color = Color(0.035, 0.055, 0.07, 0.96)
-const EDGE: Color = Color(0.27, 0.36, 0.4)
+const PANEL: Color = Color(0.035, 0.038, 0.043, 0.97)
+const EDGE: Color = Color(0.23, 0.24, 0.26)
 const CAST_MODES: Array = ["клик по цели", "мгновенно", "удержать и отпустить"]
 
 var hero: BaseHero
@@ -122,7 +122,7 @@ func setup(h: BaseHero, b: BaseHero, m: Node, controller: PlayerController, came
 
 
 # ---------- стили ----------
-func _sb(bg: Color, border: Color, radius: int = 6, bw: int = 2) -> StyleBoxFlat:
+func _sb(bg: Color, border: Color, radius: int = 2, bw: int = 1) -> StyleBoxFlat:
 	var s := StyleBoxFlat.new()
 	s.bg_color = bg
 	s.border_color = border
@@ -260,7 +260,7 @@ func _build_bottom(root: Control) -> void:
 	wrap.add_child(mastery_badge)
 	_lbl_level = Label.new()
 	_lbl_level.add_theme_font_size_override("font_size", 16)
-	_lbl_level.add_theme_stylebox_override("normal", _sb(Color(0.1, 0.1, 0.16), GOLD, 14, 2))
+	_lbl_level.add_theme_stylebox_override("normal", _sb(Color(0.06, 0.06, 0.07), EDGE, 2, 1))
 	_lbl_level.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_lbl_level.custom_minimum_size = Vector2(30.0, 28.0)
 	_lbl_level.position = Vector2(-4.0, pw - 26.0)
@@ -274,19 +274,19 @@ func _build_bottom(root: Control) -> void:
 	_lbl_name.clip_text = true
 	_lbl_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_lbl_name.add_theme_font_size_override("font_size", 15)
-	_lbl_name.add_theme_color_override("font_color", Color(1.0, 0.92, 0.65))
+	_lbl_name.add_theme_color_override("font_color", Color(0.88, 0.87, 0.83))
 	stats.add_child(_lbl_name)
 	_lbl_gold = Label.new()
 	_lbl_gold.clip_text = true
 	_lbl_gold.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_lbl_gold.add_theme_font_size_override("font_size", 14)
-	_lbl_gold.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
+	_lbl_gold.add_theme_color_override("font_color", Color(0.72, 0.62, 0.4))
 	stats.add_child(_lbl_gold)
-	_bar_hp = _make_bar(Color(0.2, 0.72, 0.28), bar_w)
+	_bar_hp = _make_bar(Color(0.28, 0.43, 0.34), bar_w)
 	stats.add_child(_bar_hp)
-	_bar_mp = _make_bar(Color(0.25, 0.45, 0.95), bar_w)
+	_bar_mp = _make_bar(Color(0.26, 0.39, 0.52), bar_w)
 	stats.add_child(_bar_mp)
-	_bar_xp = _make_bar(Color(0.7, 0.5, 0.9), bar_w, 14.0)
+	_bar_xp = _make_bar(Color(0.48, 0.43, 0.33), bar_w, 14.0)
 	stats.add_child(_bar_xp)
 	_lbl_stats = Label.new()
 	_lbl_stats.add_theme_font_size_override("font_size", 11)
@@ -397,7 +397,7 @@ func _build_top(root: Control) -> void:
 	var wrap := HBoxContainer.new()
 	wrap.add_theme_constant_override("separation", 4)
 	wrap.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var pl := _panel(Color(0.08, 0.16, 0.34, 0.94), Color(0.3, 0.6, 1.0))
+	var pl := _panel(Color(0.04, 0.047, 0.055, 0.97), Color(0.29, 0.4, 0.48))
 	_lbl_score_l = Label.new()
 	_lbl_score_l.add_theme_font_size_override("font_size", 20)
 	_lbl_score_l.custom_minimum_size = Vector2(110.0, 0.0)
@@ -424,7 +424,7 @@ func _build_top(root: Control) -> void:
 	row.add_child(_lbl_wave)
 	v.add_child(row)
 	wrap.add_child(pc2)
-	var pr := _panel(Color(0.34, 0.08, 0.08, 0.94), Color(1.0, 0.4, 0.35))
+	var pr := _panel(Color(0.055, 0.04, 0.04, 0.97), Color(0.52, 0.29, 0.25))
 	_lbl_score_r = Label.new()
 	_lbl_score_r.add_theme_font_size_override("font_size", 20)
 	_lbl_score_r.custom_minimum_size = Vector2(110.0, 0.0)
@@ -797,7 +797,7 @@ func _process(delta: float) -> void:
 
 	var tl := hero.any_talent_available()
 	_btn_talent.text = "Таланты!" if tl else "Таланты"
-	_btn_talent.modulate = Color(1.4, 1.2, 0.6) if (tl and int(_t * 3.0) % 2 == 0) else Color.WHITE
+	_btn_talent.modulate = Color(1.0, 0.85, 0.65) if tl else Color.WHITE
 	var offer: Array = hero.neutral_offer
 	_neutral_panel.visible = not offer.is_empty()
 	if not offer.is_empty():
@@ -844,24 +844,7 @@ func _process(delta: float) -> void:
 
 
 func _update_objective_hint() -> void:
-	if Global.test_mode:
-		_lbl_objective.text = "Песочница: пробуйте способности и предметы. Прогресс здесь не начисляется."
-		return
-	var objective := "Цель: идите со своей волной к вражеской башне. Затем разрушьте трон."
-	if hero.hp < hero.max_hp * 0.3:
-		objective = "Цель: отступите к своему фонтану и восстановите здоровье."
-	elif Global.siege_waves[hero.team] > 0:
-		objective = "Цель: используйте усиленные осадные волны для атаки башен."
-	var purchase := "Сборка завершена — помогите союзнику на карте."
-	if is_instance_valid(hero.courier) and not hero.courier.stash.is_empty():
-		purchase = "Курьер несёт покупки: кнопка «Курьер» отправит его к вам."
-	else:
-		for id in BuildGuide.items(hero.hero_id, hero.build_choice):
-			if id == "boots" and hero.inventory.has("battle_boots"): continue
-			if hero.inventory.has(id): continue
-			purchase = "F4: %s · %d золота" % [Global.ITEMS[id]["name"], Global.item_price(hero.inventory, id)]
-			break
-	_lbl_objective.text = objective + "\n" + purchase
+	_lbl_objective.text = MatchObjectiveText.text_for(hero)
 
 
 func _portrait_tick(delta: float) -> void:

@@ -1,8 +1,8 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://cqarnumxni2hv"]
 
-[ext_resource type="Script" path="res://scripts/AuthGate.gd" id="1_auth"]
+[ext_resource type="Script" uid="uid://bcqxg5755bdv4" path="res://scripts/AuthGate.gd" id="1_auth"]
 
-[node name="AuthGate" type="Control"]
+[node name="AuthGate" type="Control" unique_id=196401510]
 layout_mode = 3
 anchors_preset = 0
 script = ExtResource("1_auth")

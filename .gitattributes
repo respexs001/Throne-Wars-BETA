@@ -10,3 +10,5 @@
 *.ogg binary
 *.exe binary
 *.zip binary
+*.blend binary
+*.glb binary

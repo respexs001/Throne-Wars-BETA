@@ -37,9 +37,7 @@ func _ready() -> void:
     _learn_btn.visible = false
     _learn_btn.pressed.connect(func() -> void: learn.emit(index))
     add_child(_learn_btn)
-    _pulse = create_tween().set_loops()
-    _pulse.tween_property(_learn_btn, "modulate", Color(1.0, 1.0, 0.3), 0.45)
-    _pulse.tween_property(_learn_btn, "modulate", Color.WHITE, 0.45)
+    _learn_btn.modulate = Color(0.85, 0.77, 0.6)
     mouse_entered.connect(func() -> void:
         _hover = true
         hovered.emit(index, true))
@@ -98,17 +96,17 @@ func _draw() -> void:
         draw_colored_polygon(clipped, Color(0.0, 0.0, 0.0, 0.62))
         draw_string(font, Vector2(0.0, s * 0.64), str(int(ceilf(cd_left))), HORIZONTAL_ALIGNMENT_CENTER, s, int(s * 0.42), Color.WHITE)
     # рамка
-    var border := Color(1.0, 0.82, 0.3) if is_ult else Color(0.7, 0.72, 0.8)
+    var border := Color(0.65, 0.55, 0.37) if is_ult else Color(0.7, 0.72, 0.8)
     if _hover or _down:
-        border = Color(1.0, 1.0, 0.6)
+        border = Color(0.88, 0.82, 0.67)
     draw_rect(ir, border, false, 3.0 if (_hover or _down) else 2.0)
     # значок клавиши
     draw_rect(Rect2(Vector2(2.0, 2.0), Vector2(s * 0.34, s * 0.3)), Color(0.0, 0.0, 0.0, 0.7))
-    draw_string(font, Vector2(2.0, s * 0.26), key_text, HORIZONTAL_ALIGNMENT_CENTER, s * 0.34, int(s * 0.24), Color(1.0, 0.92, 0.5))
+    draw_string(font, Vector2(2.0, s * 0.26), key_text, HORIZONTAL_ALIGNMENT_CENTER, s * 0.34, int(s * 0.24), Color(0.82, 0.8, 0.73))
     if passive:
         draw_string(font, Vector2(0.0, s - 4.0), "пасс.", HORIZONTAL_ALIGNMENT_CENTER, s, 10, Color(0.85, 0.85, 0.95))
     # точки уровня
     var pw := (s - 4.0) / float(max_level)
     for p in max_level:
-        var pc := Color(1.0, 0.85, 0.2) if p < level else Color(0.25, 0.25, 0.3)
+        var pc := Color(0.67, 0.56, 0.36) if p < level else Color(0.25, 0.25, 0.3)
         draw_rect(Rect2(Vector2(2.0 + pw * float(p), s + 4.0), Vector2(pw - 2.0, 6.0)), pc)

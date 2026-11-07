@@ -7,8 +7,8 @@
 ```powershell
 python tools/test.py --godot "C:/path/to/Godot.exe" --suite core
 python tools/build_windows.py --godot "C:/path/to/Godot.exe" --templates "C:/path/to/4.7.2.stable"
-python tools/test_windows.py "build/windows/ThroneWars-1.0.3-alpha.1-candidate.zip"
-python tools/test_windows.py "build/windows/ThroneWars-1.0.3-alpha.1-candidate.zip" --benchmark --report-dir artifacts/windows-benchmark
+python tools/test_windows.py "build/windows/ThroneWars-1.0.3-alpha.2-candidate.zip"
+python tools/test_windows.py "build/windows/ThroneWars-1.0.3-alpha.2-candidate.zip" --benchmark --report-dir artifacts/windows-benchmark
 ```
 
 Сборщик создаёт временную экспортную копию исходников и изолированный APPDATA. Настоящие accounts.cfg/settings.cfg не читаются и не входят в пакет. ZIP, контрольная сумма и manifest находятся в build/windows. Файлы build не коммитятся.
@@ -19,4 +19,4 @@ python tools/test_windows.py "build/windows/ThroneWars-1.0.3-alpha.1-candidate.z
 
 Сборщик сохраняет SHA-256 исходных игровых файлов, EXE и шаблона в manifest. Проверка ZIP сверяет хэш EXE и версию manifest с запущенной игрой. Файловые метаданные EXE пока остаются от шаблона: rcedit и цифровая подпись в эту сборку не входят. Версия игры указана в меню, README и manifest.
 
-Для релиза: выполните acceptance, графическую проверку и внешний тест по docs/VALIDATION.md. До закрытия всех критериев пакет является кандидатом для тестирования, а не одобренным релизом. Публиковать ZIP через GitHub Releases с тегом v1.0.3-alpha.1; секреты и учётные данные не добавлять в экспортный пресет.
+Для релиза: выполните acceptance, графическую проверку и внешний тест по docs/VALIDATION.md. До закрытия всех критериев пакет является кандидатом для тестирования, а не одобренным релизом. Публиковать ZIP через GitHub Releases с тегом v1.0.3-alpha.2; секреты и учётные данные не добавлять в экспортный пресет.
