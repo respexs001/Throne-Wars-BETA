@@ -18,7 +18,6 @@ def main():
   preset=(stage/'export_presets.cfg').read_text(encoding='utf-8');head,android=preset.split('[preset.3.options]',1)
   android=android.replace('custom_template/debug=""','custom_template/debug="'+(a.templates/'android_debug.apk').resolve().as_posix()+'"',1)
   android=android.replace('architectures/x86_64=false','architectures/x86_64=true').replace('version/name="1.0.2"',f'version/name="{VERSION}"').replace('version/code=3','version/code=100302').replace('com.thronewars.game','com.thronewars.alpha')
-  android=android.replace('package/show_as_launcher_app=false','package/show_as_launcher_app=true')
   preset=head+'[preset.3.options]'+android
   preset=preset.replace('exclude_filter="*.md,*.txt"','exclude_filter="*.md,*.txt,tests/*,tools/*,.github/*,docs/*"')
   (stage/'export_presets.cfg').write_text(preset,encoding='utf-8')
@@ -32,6 +31,11 @@ def main():
    result=subprocess.run(common+args,env=env,capture_output=True,timeout=240)
    text=(result.stdout+result.stderr).decode('utf-8',errors='replace');(out/(name+'.log')).write_text(text,encoding='utf-8')
    if result.returncode or 'ERROR:' in text:raise RuntimeError(text[-6000:])
- manifest={'version':VERSION,'platform':'android-arm64-and-x86_64','package':'com.thronewars.alpha','signing':'test certificate; not a store release','sha256':hashlib.file_digest(apk.open('rb'),'sha256').hexdigest(),'user_data_included':False}
+ build_tools=sorted((a.sdk/'build-tools').iterdir())[-1]
+ subprocess.run([str(a.java/'bin'/('java.exe' if os.name=='nt' else 'java')),'-jar',str(build_tools/'lib/apksigner.jar'),'verify',str(apk)],check=True,capture_output=True)
+ aapt=str(build_tools/('aapt.exe' if os.name=='nt' else 'aapt'))
+ manifest_text=subprocess.run([aapt,'dump','xmltree',str(apk),'AndroidManifest.xml'],check=True,capture_output=True).stdout.decode('utf-8',errors='replace')
+ if 'android.intent.action.MAIN' not in manifest_text or 'android.intent.category.LAUNCHER' not in manifest_text:raise RuntimeError('APK has no launcher entry')
+ manifest={'version':VERSION,'platform':'android-arm64-and-x86_64','package':'com.thronewars.alpha','signing':'test certificate; not a store release','signature_verified':True,'launcher_verified':True,'sha256':hashlib.file_digest(apk.open('rb'),'sha256').hexdigest(),'user_data_included':False}
  (out/'manifest.json').write_text(json.dumps(manifest,indent=2));print(json.dumps(manifest))
 if __name__=='__main__':main()
