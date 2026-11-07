@@ -50,7 +50,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           VERSION=$(python -c 'import sys;sys.path.insert(0,"tools");from build_windows import VERSION;print(VERSION)')
-          gh release create "v$VERSION" build/downloads/* --target "$GITHUB_SHA" --prerelease --title "Throne Wars $VERSION — Windows + Android test" --notes-file docs/RELEASE_ALPHA2.md
+          if gh release view "v$VERSION" >/dev/null 2>&1; then
+            gh release upload "v$VERSION" build/downloads/* --clobber
+            gh release edit "v$VERSION" --prerelease --notes-file docs/RELEASE_ALPHA2.md
+          else
+            gh release create "v$VERSION" build/downloads/* --target "$GITHUB_SHA" --prerelease --title "Throne Wars $VERSION — Windows + Android test" --notes-file docs/RELEASE_ALPHA2.md
+          fi
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:

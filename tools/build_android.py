@@ -18,6 +18,7 @@ def main():
   preset=(stage/'export_presets.cfg').read_text(encoding='utf-8');head,android=preset.split('[preset.3.options]',1)
   android=android.replace('custom_template/debug=""','custom_template/debug="'+(a.templates/'android_debug.apk').resolve().as_posix()+'"',1)
   android=android.replace('architectures/x86_64=false','architectures/x86_64=true').replace('version/name="1.0.2"',f'version/name="{VERSION}"').replace('version/code=3','version/code=100302').replace('com.thronewars.game','com.thronewars.alpha')
+  android=android.replace('package/show_as_launcher_app=false','package/show_as_launcher_app=true')
   preset=head+'[preset.3.options]'+android
   preset=preset.replace('exclude_filter="*.md,*.txt"','exclude_filter="*.md,*.txt,tests/*,tools/*,.github/*,docs/*"')
   (stage/'export_presets.cfg').write_text(preset,encoding='utf-8')
